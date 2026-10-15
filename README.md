@@ -1,5 +1,4 @@
-
-<img width="612" height="740" alt="Capture d’écran 2025-10-23 à 18 37 06" src="https://github.com/user-attachments/assets/19519080-8612-4b83-9a3a-18c6abf75838" />
+<img width="546" height="728" alt="capture1 1" src="https://github.com/user-attachments/assets/ad3f9ceb-38dd-4c2b-ba5d-ecda58c21bb3" />
 
 # Bundle ID
 
