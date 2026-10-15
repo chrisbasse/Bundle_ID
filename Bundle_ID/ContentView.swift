@@ -3,16 +3,23 @@
 
 import SwiftUI
 import AppKit
+import Security
 import UniformTypeIdentifiers
 
 struct ContentView: View {
     @State private var bundleID: String = ""
+    @State private var teamID: String = ""
     @State private var appName: String = ""
     @State private var appVersion: String = ""
     @State private var isDragging: Bool = false
     @State private var showingFilePicker: Bool = false
     @State private var errorMessage: String = ""
     @State private var showingCopiedAlert: Bool = false
+    @State private var showingCopiedTeamAlert: Bool = false
+    
+    private var hasTeamID: Bool {
+        !teamID.isEmpty && teamID != "team_id_not_found".localized
+    }
     
     var body: some View {
         VStack(spacing: 20) {
@@ -156,6 +163,51 @@ struct ContentView: View {
                             .foregroundColor(.green)
                             .transition(.opacity)
                     }
+                    
+                    // Team ID avec bouton de copie
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("team_id_label".localized)
+                            .font(.headline)
+                        
+                        HStack {
+                            if #available(macOS 12.0, *) {
+                                Text(teamID)
+                                    .textSelection(.enabled)
+                                    .padding(8)
+                                    .background(Color.gray.opacity(0.1))
+                                    .cornerRadius(6)
+                                    .font(.system(.body, design: .monospaced))
+                                    .foregroundColor(hasTeamID ? .primary : .secondary)
+                            } else {
+                                Text(teamID)
+                                    .padding(8)
+                                    .background(Color.gray.opacity(0.1))
+                                    .cornerRadius(6)
+                                    .font(.system(.body, design: .monospaced))
+                                    .foregroundColor(hasTeamID ? .primary : .secondary)
+                                    .onTapGesture {
+                                        if hasTeamID { copyTeamID() }
+                                    }
+                            }
+                            
+                            if hasTeamID {
+                                Button(action: copyTeamID) {
+                                    Image(systemName: showingCopiedTeamAlert ? "checkmark" : "doc.on.clipboard")
+                                        .foregroundColor(showingCopiedTeamAlert ? .green : .blue)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .help("copy_team_id".localized)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    if showingCopiedTeamAlert {
+                        Text("copied_to_clipboard".localized)
+                            .font(.caption)
+                            .foregroundColor(.green)
+                            .transition(.opacity)
+                    }
                 }
                 .padding(.vertical, 12)
                 .background(Color.blue.opacity(0.05))
@@ -174,7 +226,7 @@ struct ContentView: View {
             Spacer()
         }
         .padding()
-        .frame(width: 500, height: 600)
+        .frame(width: 500, height: 650)
         .fileImporter(
             isPresented: $showingFilePicker,
             allowedContentTypes: [UTType.applicationBundle],
@@ -241,6 +293,9 @@ struct ContentView: View {
                     return
                 }
                 
+                // Extraire le Team ID depuis la signature de code
+                teamID = extractTeamID(from: url) ?? "team_id_not_found".localized
+                
                 if let displayName = plist["CFBundleDisplayName"] as? String {
                     appName = displayName
                 } else if let name = plist["CFBundleName"] as? String {
@@ -265,12 +320,28 @@ struct ContentView: View {
         }
     }
     
+    // Lit le Team ID dans la signature de code de l'application
+    private func extractTeamID(from url: URL) -> String? {
+        var staticCode: SecStaticCode?
+        guard SecStaticCodeCreateWithPath(url as CFURL, [], &staticCode) == errSecSuccess,
+              let code = staticCode else { return nil }
+        
+        var info: CFDictionary?
+        let flags = SecCSFlags(rawValue: UInt32(kSecCSSigningInformation))
+        guard SecCodeCopySigningInformation(code, flags, &info) == errSecSuccess,
+              let dict = info as? [String: Any] else { return nil }
+        
+        return dict[kSecCodeInfoTeamIdentifier as String] as? String
+    }
+    
     private func clearResults() {
         bundleID = ""
+        teamID = ""
         appName = ""
         appVersion = ""
         errorMessage = ""
         showingCopiedAlert = false
+        showingCopiedTeamAlert = false
     }
     
     private func copyBundleID() {
@@ -295,6 +366,30 @@ struct ContentView: View {
                 }
             } else {
                 showingCopiedAlert = false
+            }
+        }
+    }
+    
+    private func copyTeamID() {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(teamID, forType: .string)
+        
+        if #available(macOS 12.0, *) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showingCopiedTeamAlert = true
+            }
+        } else {
+            showingCopiedTeamAlert = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            if #available(macOS 12.0, *) {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showingCopiedTeamAlert = false
+                }
+            } else {
+                showingCopiedTeamAlert = false
             }
         }
     }

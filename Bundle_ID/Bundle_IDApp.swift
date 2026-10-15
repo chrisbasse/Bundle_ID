@@ -10,11 +10,14 @@
 import SwiftUI
 import AppKit
 
+// Hauteur et largeur fixes de la fenêtre
+private let windowSize = NSSize(width: 500, height: 650)
+
 // Classe pour contrôler le comportement de la fenêtre (non redimensionnable)
 class WindowDelegate: NSObject, NSWindowDelegate {
     func windowWillResize(_ sender: NSWindow, to frameSize: NSSize) -> NSSize {
-        // Maintenir une taille fixe de 500x600
-        return NSSize(width: 500, height: 600)
+        // Maintenir une taille fixe de 500x650
+        return windowSize
     }
     
     func windowDidBecomeMain(_ notification: Notification) {
@@ -22,7 +25,7 @@ class WindowDelegate: NSObject, NSWindowDelegate {
             // Désactiver le redimensionnement
             window.styleMask.remove(.resizable)
             // Taille correcte
-            window.setContentSize(NSSize(width: 500, height: 600))
+            window.setContentSize(windowSize)
         }
     }
 }
@@ -84,14 +87,14 @@ struct Bundle_IDApp: App {
                 window.delegate = windowDelegate.delegate
                 
                 // Définir la taille exacte
-                window.setContentSize(NSSize(width: 500, height: 600))
+                window.setContentSize(windowSize)
                 
                 // Centrer la fenêtre
                 window.center()
                 
                 // Définir les contraintes de taille min/max
-                window.minSize = NSSize(width: 500, height: 600)
-                window.maxSize = NSSize(width: 500, height: 600)
+                window.minSize = windowSize
+                window.maxSize = windowSize
             }
         }
     }

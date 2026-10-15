@@ -154,6 +154,23 @@
         }
       }
     },
+    "copy_team_id" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Team ID"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier le Team ID"
+          }
+        }
+      }
+    },
     "drag_app_here" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -286,6 +303,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Erreur de sélection : %@"
+          }
+        }
+      }
+    },
+    "team_id_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Team ID:"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Team ID :"
+          }
+        }
+      }
+    },
+    "team_id_not_found" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None (unsigned or Apple app)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun (app non signée ou app Apple)"
           }
         }
       }
